@@ -11,11 +11,7 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        rust: [stable]
+    runs-on: macos-latest
     
     steps:
     - uses: actions/checkout@v4
@@ -50,24 +46,15 @@ jobs:
     - name: Install Python dependencies
       run: pip install componentize-py
     
-    - name: Build Python Skill Scanner (all platforms)
+    - name: Build Python Skill Scanner
       run: |
         cd component-skill-scanner
         componentize-py -d ../wit -w scanner-component componentize app -o ../skill-scanner.wasm
     
-    - name: Install nightly Rust (for WASM components)
-      uses: dtolnay/rust-toolchain@nightly
-      with:
-        targets: wasm32-wasip1
-      
-    - name: Build Rust WASM Components (macOS only)
-      if: runner.os == 'macOS'
+    - name: Build Rust WASM Components
       run: cargo component build --release
     
-    - name: Build Host Runtime with stable Rust
-      uses: dtolnay/rust-toolchain@stable
-    
-    - name: Build Host Runtime (native binary)
+    - name: Build Host Runtime
       run: cargo build --release
     
     - name: Run Tests
