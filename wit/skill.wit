@@ -1,0 +1,22 @@
+package sandbox:skill;
+
+/// Filesystem capability interface - provided by host based on permissions
+interface filesystem {
+    /// Read a file's contents. Returns error string if denied or file not found.
+    read-file: func(path: string) -> result<string, string>;
+
+    /// Write content to a file. Returns error string if denied or write fails.
+    write-file: func(path: string, content: string) -> result<_, string>;
+}
+
+/// Base skill interface that all components must implement
+interface skill {
+    /// Execute the skill's main logic
+    run: func() -> string;
+}
+
+/// World for skill components - imports filesystem, exports skill
+world skill-component {
+    import filesystem;
+    export skill;
+}

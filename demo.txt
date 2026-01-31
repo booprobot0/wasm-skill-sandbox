@@ -1,0 +1,3 @@
+Hello from the sandbox!
+This file was read by a trusted WASM component.
+Capability-based security is working correctly.
