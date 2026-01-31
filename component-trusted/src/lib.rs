@@ -11,7 +11,7 @@ struct TrustedComponent;
 impl Guest for TrustedComponent {
     fn run() -> String {
         // Read a demo file - this should be ALLOWED for trusted components
-        let result = sandbox::skill::filesystem::read_file("./demo.txt");
+        let result = sandbox::skill::filesystem_read::read_file("./demo.txt");
 
         match result {
             Ok(content) => {

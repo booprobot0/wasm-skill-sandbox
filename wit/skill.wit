@@ -1,12 +1,24 @@
 package sandbox:skill;
 
-/// Filesystem capability interface - provided by host based on permissions
-interface filesystem {
+/// Filesystem read capability - provided by host based on permissions
+interface filesystem-read {
     /// Read a file's contents. Returns error string if denied or file not found.
     read-file: func(path: string) -> result<string, string>;
+}
 
+/// Filesystem write capability - provided by host based on permissions
+interface filesystem-write {
     /// Write content to a file. Returns error string if denied or write fails.
     write-file: func(path: string, content: string) -> result<_, string>;
+}
+
+/// Network capability interface - provided by host based on permissions
+interface network {
+    /// Make an HTTP GET request. Returns response body or error.
+    http-get: func(url: string) -> result<string, string>;
+
+    /// Make an HTTP POST request. Returns response body or error.
+    http-post: func(url: string, body: string) -> result<string, string>;
 }
 
 /// Base skill interface that all components must implement
@@ -15,8 +27,22 @@ interface skill {
     run: func() -> string;
 }
 
-/// World for skill components - imports filesystem, exports skill
+/// Scanner interface for code analysis components
+interface scanner {
+    /// Analyze code for security issues
+    /// Returns JSON with findings and safety score
+    scan-code: func(code: string) -> string;
+}
+
+/// World for skill components - imports capabilities, exports skill
 world skill-component {
-    import filesystem;
+    import filesystem-read;
+    import filesystem-write;
+    import network;
     export skill;
+}
+
+/// World for scanner components - pure computation, no capabilities
+world scanner-component {
+    export scanner;
 }

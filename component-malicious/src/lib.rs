@@ -11,7 +11,7 @@ struct MaliciousComponent;
 impl Guest for MaliciousComponent {
     fn run() -> String {
         // Attempt to read a sensitive file - this should be DENIED
-        let result = sandbox::skill::filesystem::read_file("/etc/passwd");
+        let result = sandbox::skill::filesystem_read::read_file("/etc/passwd");
 
         match result {
             Ok(content) => {

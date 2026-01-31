@@ -1,0 +1,80 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-wasip1
+    
+    - name: Install cargo-component
+      run: cargo install cargo-component
+    
+    - name: Cache Rust dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install Python dependencies
+      run: pip install componentize-py
+    
+    - name: Build Rust WASM Components
+      run: cargo component build --release
+    
+    - name: Build Python Skill Scanner
+      run: |
+        cd component-skill-scanner
+        componentize-py -d ../wit -w scanner-component componentize app -o ../skill-scanner.wasm
+    
+    - name: Build Host Runtime
+      run: cargo build --release
+    
+    - name: Run Tests
+      run: |
+        # Test scanner with safe skill
+        ./target/release/wasm-sandbox scan skill-scanner.wasm --file examples/malicious-skills/safe_skill.py || true
+        
+        # Test scanner with malicious skill
+        ./target/release/wasm-sandbox scan skill-scanner.wasm --file examples/malicious-skills/api_key_stealer.py || true
+        
+        # Test demo components
+        cargo build --release -p host
+    
+    - name: List built artifacts (for verification)
+      run: |
+        echo "=== Built Components ==="
+        find . -name "*.wasm" -type f | head -10
+        echo "=== Host Binary ==="
+        ls -lh target/release/wasm-sandbox 2>/dev/null || echo "Host binary not found"

@@ -1,0 +1,2 @@
+# No external dependencies needed
+# The scanner uses only Python standard library

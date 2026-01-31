@@ -3,6 +3,12 @@ name = "host"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "wasm-sandbox"
+path = "src/main.rs"
+
 [dependencies]
 wasmtime = { version = "28", features = ["component-model"] }
+wasmtime-wasi = "28"
 anyhow = "1.0"
+clap = { version = "4.4", features = ["derive"] }
