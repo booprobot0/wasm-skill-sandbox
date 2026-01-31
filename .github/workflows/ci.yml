@@ -25,8 +25,8 @@ jobs:
       with:
         targets: wasm32-wasip1
     
-    - name: Install cargo-component
-      run: cargo install cargo-component
+    - name: Install cargo-component (nightly compatible version)
+      run: cargo install cargo-component --version 0.20.0 --force
     
     - name: Cache Rust dependencies
       uses: actions/cache@v4
