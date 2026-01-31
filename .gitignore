@@ -1,3 +1,8 @@
 target/
 *.wasm
 Cargo.lock
+
+# Generated Python bindings from componentize-py
+component-skill-scanner/scanner_component/
+component-skill-scanner/__pycache__/
+component-skill-scanner/*.wasm
