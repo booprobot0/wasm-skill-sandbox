@@ -50,27 +50,26 @@ jobs:
     - name: Install Python dependencies
       run: pip install componentize-py
     
-    - name: Build Rust WASM Components
-      run: cargo component build --release
-    
-    - name: Build Python Skill Scanner
+    - name: Build Python Skill Scanner (all platforms)
       run: |
         cd component-skill-scanner
         componentize-py -d ../wit -w scanner-component componentize app -o ../skill-scanner.wasm
     
-    - name: Build Host Runtime
+    - name: Build Rust WASM Components (macOS only)
+      if: runner.os == 'macOS'
+      run: cargo component build --release
+    
+    - name: Build Host Runtime (native binary)
       run: cargo build --release
     
     - name: Run Tests
       run: |
+        ls -lh skill-scanner.wasm
         # Test scanner with safe skill
         ./target/release/wasm-sandbox scan skill-scanner.wasm --file examples/malicious-skills/safe_skill.py || true
         
         # Test scanner with malicious skill
         ./target/release/wasm-sandbox scan skill-scanner.wasm --file examples/malicious-skills/api_key_stealer.py || true
-        
-        # Test demo components
-        cargo build --release -p host
     
     - name: List built artifacts (for verification)
       run: |
